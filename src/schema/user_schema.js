@@ -1,7 +1,7 @@
-const { GraphQLObjectType, GraphQLString, GraphQLID} = require("graphql");
+const { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLList} = require("graphql");
 const uuid = require('uuid');
 const UserType = require('./types/user_type')
-const usersList = require('./data')
+let usersList = require('./data')
 const mutation = new GraphQLObjectType({
     name: "mutation",
     fields: {
@@ -27,7 +27,9 @@ const mutation = new GraphQLObjectType({
           id: { type: GraphQLID },
         },
         resolve: (_, { id }) => {
-          return null;
+          const user = usersList.find((u)=> u.id === id);
+          usersList = usersList.filter((u)=>u.id !== id);
+          return user;
         },
       },
       updateUser: {
@@ -37,11 +39,35 @@ const mutation = new GraphQLObjectType({
           name: { type: GraphQLString },
           email: { type: GraphQLString },
         },
-        resolve: (_, { id, name }) => {
-          return { id, name };
+        resolve: (_, { id, name, email }) => {
+          var user = usersList.find((u)=>u.id===id)
+          user.name =name
+          user.email = email
+          return user;
         },
       },
     },
   });
 
-  module.exports = mutation;
+const query = new GraphQLObjectType({
+    name: "query",
+    fields: {
+      users: {
+        type: new GraphQLList(UserType),
+        resolve: () => {
+          return usersList;
+        },
+      },
+      user: {
+        type: UserType,
+        args: {
+          id: { type: GraphQLID },
+        },
+        resolve: (_, { id }) => {
+          return usersList.find((user)=>user.id===id);
+        },
+      },
+    },
+});
+
+  module.exports = {query, mutation};

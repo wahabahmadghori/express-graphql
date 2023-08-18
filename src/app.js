@@ -1,8 +1,7 @@
 const express = require('express')
 const {graphqlHTTP} = require('express-graphql')
 const { GraphQLSchema } = require('graphql')
-const query = require('./schema/query')
-const mutation = require('./schema/mutation')
+const {query,mutation} = require('./schema/user_schema')
 
 const app = express()
 
